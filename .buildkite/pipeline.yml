@@ -21,13 +21,13 @@ steps:
           serviceAccountName: deploy
           initContainers:
             - image: bitnami/kubectl:latest
-              command: bash
+              command: [bash]
               args: ["-c", "kubectl create ns petclinic"]
             - image: bitnami/kubectl:latest
-              command: bash
+              command: [bash]
               args: ["-c", "kubectl create -n petclinic -f manifest.yml"]
             - image: bitnami/kubectl:latest
-              command: bash
+              command: [bash]
               args:
                 [
                   "-c",
@@ -56,5 +56,5 @@ steps:
       - kubernetes:
           initContainers:
             - image: bitnami/kubectl:latest
-              command: bash
+              command: [bash]
               args: ["-c", "kubectl delete ns petclinic --wait --timeout=90s"]
