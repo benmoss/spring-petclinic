@@ -1,0 +1,20 @@
+steps:
+  - name: build image
+    agents:
+      queue: kubernetes
+    plugins:
+      - kubernetes:
+          containers:
+            - image: gradle:latest
+              command: [gradle]
+              args:
+                - jib
+                - --image=ttl.sh/bmo:1h
+  - wait
+  - name: run image
+    agents:
+      queue: kubernetes
+    plugins:
+      - kubernetes:
+          containers:
+            - image: ttl.sh/bmo:1h
