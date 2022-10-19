@@ -26,6 +26,7 @@ steps:
             - image: bitnami/kubectl:latest
               command: [bash]
               args: ["-c", "kubectl create -n petclinic -f manifest.yml"]
+          containers:
             - image: bitnami/kubectl:latest
               command: [bash]
               args:
@@ -54,7 +55,7 @@ steps:
       queue: kubernetes
     plugins:
       - kubernetes:
-          initContainers:
+          containers:
             - image: bitnami/kubectl:latest
               command: [bash]
               args: ["-c", "kubectl delete ns petclinic --wait --timeout=90s"]
