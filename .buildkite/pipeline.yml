@@ -55,6 +55,7 @@ steps:
       queue: kubernetes
     plugins:
       - kubernetes:
+          serviceAccountName: deploy
           containers:
             - image: bitnami/kubectl:latest
               command: [bash]
