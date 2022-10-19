@@ -1,5 +1,6 @@
 steps:
-  - name: build image
+  - label: build image
+    key: build
     agents:
       queue: kubernetes
     plugins:
@@ -10,11 +11,50 @@ steps:
               args:
                 - jib
                 - --image=ttl.sh/bmo:1h
-  - wait
-  - name: run image
+  - label: deploy
+    depends_on: build
+    key: deploy
+    agents:
+      queue: kubernetes
+    plugins:
+      - kubernetes:
+          serviceAccountName: deploy
+          initContainers:
+            - image: bitnami/kubectl:latest
+              command: bash
+              args: ["-c", "kubectl create ns petclinic"]
+            - image: bitnami/kubectl:latest
+              command: bash
+              args: ["-c", "kubectl create -n petclinic -f manifest.yml"]
+            - image: bitnami/kubectl:latest
+              command: bash
+              args:
+                [
+                  "-c",
+                  "kubectl rollout status deployment petclinic -n petclinic --timeout=90s",
+                ]
+  - label: curl
+    key: curl
+    depends_on: deploy
     agents:
       queue: kubernetes
     plugins:
       - kubernetes:
           containers:
-            - image: ttl.sh/bmo:1h
+            - image: curlimages/curl:latest
+              args:
+                - petclinic
+  - name: cleanup
+    depends_on:
+      - step: deploy
+        allow_failure: true
+      - step: curl
+        allow_failure: true
+    agents:
+      queue: kubernetes
+    plugins:
+      - kubernetes:
+          initContainers:
+            - image: bitnami/kubectl:latest
+              command: bash
+              args: ["-c", "kubectl delete ns petclinic --wait --timeout=90s"]
