@@ -29,7 +29,7 @@ steps:
                 ]
             - image: bitnami/kubectl:latest
               command: [bash]
-              args: ["-c", "kubectl create -n petclinic -f manifest.yml"]
+              args: ["-c", "kubectl apply -n petclinic -f manifest.yml"]
           containers:
             - image: bitnami/kubectl:latest
               command: [bash]
