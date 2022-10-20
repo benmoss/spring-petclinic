@@ -22,7 +22,11 @@ steps:
           initContainers:
             - image: bitnami/kubectl:latest
               command: [bash]
-              args: ["-c", "kubectl create ns petclinic"]
+              args:
+                [
+                  "-c",
+                  "kubectl create ns petclinic --dry-run -oyaml | kubectl apply -f-",
+                ]
             - image: bitnami/kubectl:latest
               command: [bash]
               args: ["-c", "kubectl create -n petclinic -f manifest.yml"]
@@ -59,4 +63,8 @@ steps:
           containers:
             - image: bitnami/kubectl:latest
               command: [bash]
-              args: ["-c", "kubectl delete ns petclinic --wait --timeout=90s"]
+              args:
+                [
+                  "-c",
+                  "kubectl delete ns petclinic --wait --timeout=90s --ignore-not-found",
+                ]
