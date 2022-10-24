@@ -48,6 +48,7 @@ steps:
           containers:
             - image: curlimages/curl:latest
               args:
+                - --no-progress-meter
                 - petclinic.petclinic
   - name: cleanup
     depends_on:
