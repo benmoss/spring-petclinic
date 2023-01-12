@@ -5,12 +5,11 @@ steps:
       queue: kubernetes
     plugins:
       - kubernetes:
-          containers:
-            - image: gradle:latest
-              command: [gradle]
-              args:
-                - jib
-                - --image=ttl.sh/bmo:1h
+          podSpec:
+            containers:
+              - name: build
+                image: gradle:latest
+                command: [.steps/build.sh]
   - label: deploy
     depends_on: build
     key: deploy
@@ -18,26 +17,12 @@ steps:
       queue: kubernetes
     plugins:
       - kubernetes:
-          serviceAccountName: deploy
-          initContainers:
-            - image: bitnami/kubectl:latest
-              command: [bash]
-              args:
-                [
-                  "-c",
-                  "kubectl create ns petclinic --dry-run -oyaml | kubectl apply -f-",
-                ]
-            - image: bitnami/kubectl:latest
-              command: [bash]
-              args: ["-c", "kubectl apply -n petclinic -f manifest.yml"]
-          containers:
-            - image: bitnami/kubectl:latest
-              command: [bash]
-              args:
-                [
-                  "-c",
-                  "kubectl rollout status deployment petclinic -n petclinic --timeout=90s",
-                ]
+          podSpec:
+            serviceAccountName: deploy
+            containers:
+              - name: deploy
+                image: bitnami/kubectl:latest
+                command: [.steps/deploy.sh]
   - label: curl
     key: curl
     depends_on: deploy
@@ -45,11 +30,14 @@ steps:
       queue: kubernetes
     plugins:
       - kubernetes:
-          containers:
-            - image: curlimages/curl:latest
-              args:
-                - --no-progress-meter
-                - petclinic.petclinic
+          podSpec:
+            containers:
+              - name: curl
+                image: curlimages/curl:latest
+                command: [curl]
+                args:
+                  - --no-progress-meter
+                  - petclinic.petclinic
   - name: cleanup
     depends_on:
       - step: deploy
@@ -60,12 +48,9 @@ steps:
       queue: kubernetes
     plugins:
       - kubernetes:
-          serviceAccountName: deploy
-          containers:
-            - image: bitnami/kubectl:latest
-              command: [bash]
-              args:
-                [
-                  "-c",
-                  "kubectl delete ns petclinic --wait --timeout=90s --ignore-not-found",
-                ]
+          podSpec:
+            serviceAccountName: deploy
+            containers:
+              - name: cleanup
+                image: bitnami/kubectl:latest
+                command: [.steps/cleanup.sh]
