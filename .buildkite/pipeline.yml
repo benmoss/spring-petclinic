@@ -9,7 +9,7 @@ steps:
             containers:
               - name: build
                 image: gradle:latest
-                command: [.steps/build.sh]
+                command: [.buildkite/steps/build.sh]
   - label: deploy
     depends_on: build
     key: deploy
@@ -22,7 +22,7 @@ steps:
             containers:
               - name: deploy
                 image: bitnami/kubectl:latest
-                command: [.steps/deploy.sh]
+                command: [.buildkite/steps/deploy.sh]
   - label: curl
     key: curl
     depends_on: deploy
@@ -53,4 +53,4 @@ steps:
             containers:
               - name: cleanup
                 image: bitnami/kubectl:latest
-                command: [.steps/cleanup.sh]
+                command: [.buildkite/steps/cleanup.sh]
