@@ -37,6 +37,8 @@ steps:
   - label: curl
     key: curl
     depends_on: deploy
+    env:
+      BUILDKITE_SHELL: /bin/sh -e -c
     agents:
       queue: kubernetes
     plugins:
