@@ -1,5 +1,5 @@
 steps:
-  - label: build image
+  - label: test & build image
     key: build
     agents:
       queue: kubernetes
@@ -16,59 +16,18 @@ steps:
                     secretKeyRef:
                       key: BUILDKITE_ANALYTICS_TOKEN
                       name: spring-petclinic-secrets
-                - name: BUILDKITE_AGENT_DEBUG
-                  value: "true"
       - test-collector:
           files: "build/test-results/*.xml"
           format: "junit"
-  - label: deploy
+  - label: integration tests
     depends_on: build
-    key: deploy
     agents:
       queue: kubernetes
     plugins:
       - kubernetes:
           podSpec:
-            securityContext:
-              fsGroup: 2000
             serviceAccountName: deploy
             containers:
               - name: deploy
                 image: portainer/kubectl-shell:latest
-                command: [.buildkite/steps/deploy.sh]
-                env:
-                - name: BUILDKITE_AGENT_DEBUG
-                  value: "true"
-  - label: curl
-    key: curl
-    depends_on: deploy
-    env:
-      BUILDKITE_SHELL: /bin/sh -e -c
-    agents:
-      queue: kubernetes
-    plugins:
-      - kubernetes:
-          podSpec:
-            containers:
-              - name: curl
-                image: curlimages/curl:latest
-                command: [curl]
-                args:
-                  - --no-progress-meter
-                  - petclinic.petclinic
-  - name: cleanup
-    depends_on:
-      - step: deploy
-        allow_failure: true
-      - step: curl
-        allow_failure: true
-    agents:
-      queue: kubernetes
-    plugins:
-      - kubernetes:
-          podSpec:
-            serviceAccountName: deploy
-            containers:
-              - name: cleanup
-                image: portainer/kubectl-shell:latest
-                command: [.buildkite/steps/cleanup.sh]
+                command: [.buildkite/steps/integration-tests.sh]
