@@ -27,6 +27,8 @@ steps:
     plugins:
       - kubernetes:
           podSpec:
+            securityContext:
+              fsGroup: 2000
             serviceAccountName: deploy
             containers:
               - name: deploy
