@@ -16,6 +16,8 @@ steps:
                     secretKeyRef:
                       key: BUILDKITE_ANALYTICS_TOKEN
                       name: spring-petclinic-secrets
+                - name: BUILDKITE_AGENT_DEBUG
+                  value: "true"
       - test-collector:
           files: "build/test-results/*.xml"
           format: "junit"
@@ -34,6 +36,9 @@ steps:
               - name: deploy
                 image: portainer/kubectl-shell:latest
                 command: [.buildkite/steps/deploy.sh]
+                env:
+                - name: BUILDKITE_AGENT_DEBUG
+                  value: "true"
   - label: curl
     key: curl
     depends_on: deploy
