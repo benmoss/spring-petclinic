@@ -10,6 +10,15 @@ steps:
               - name: build
                 image: gradle:latest
                 command: [.buildkite/steps/build.sh]
+                env:
+                - name: BUILDKITE_ANALYTICS_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      key: BUILDKITE_ANALYTICS_TOKEN
+                      name: spring-petclinic-secrets
+      - test-collector:
+          files: "build/test-results/*.xml"
+          format: "junit"
   - label: deploy
     depends_on: build
     key: deploy
