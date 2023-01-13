@@ -30,10 +30,8 @@ steps:
             serviceAccountName: deploy
             containers:
               - name: deploy
-                image: bitnami/kubectl:latest
+                image: portainer/kubectl-shell:latest
                 command: [.buildkite/steps/deploy.sh]
-                securityContext:
-                  runAsUser: 0
   - label: curl
     key: curl
     depends_on: deploy
@@ -63,7 +61,5 @@ steps:
             serviceAccountName: deploy
             containers:
               - name: cleanup
-                image: bitnami/kubectl:latest
+                image: portainer/kubectl-shell:latest
                 command: [.buildkite/steps/cleanup.sh]
-                securityContext:
-                  runAsUser: 0
