@@ -29,6 +29,7 @@ steps:
           podSpec:
             securityContext:
               fsGroup: 2000
+              runAsGroup: 2000
             serviceAccountName: deploy
             containers:
               - name: deploy
